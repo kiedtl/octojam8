@@ -1,7 +1,10 @@
-:alias snakey       v1
-:alias snakex       v2
+# started 0950 2021-10-01
+
+:alias snakex       v1
+:alias snakey       v2  # must be exactly one register after snakex
 :alias snake_buf_i  v3
-:alias direction    v4
+:alias snake_len    v4
+:alias direction    v5
 :alias temp1        vd
 :alias temp2        ve
 
@@ -10,31 +13,44 @@
 :const EAST    3
 :const WEST    4
 
-:const SNAKE_MAX_SZ   16
-:const SNAKE_BUF       0
-:const SPRITE_SIZE     6
+:const SNAKE_MAX_SZ   4
+:const SNAKE_BUF      100
+:const SPRITE_SIZE    7
+:calc  SNAKE_START_Y  { ( (  64 / SPRITE_SIZE ) / 2 ) * SPRITE_SIZE }
+:calc  SNAKE_START_X  { ( ( 128 / SPRITE_SIZE ) / 2 ) * SPRITE_SIZE }
 
 : main
 	hires
 	init
 
 	loop
-		draw-snake
 		read-input
 		step-snake
-		draw-snake
-		sync
 	again
 ;
 
 : init
-	snakex := 11
-	snakey :=  6
+	snakex := SNAKE_START_X
+	snakey := SNAKE_START_Y
+	snake_buf_i := 0
+	snake_len := 2
 	direction := EAST
 ;
 
-: sync
+: read-input
 	loop
+		vf := OCTO_KEY_W
+		if vf key then direction := NORTH
+
+		vf := OCTO_KEY_A
+		if vf key then direction := WEST
+
+		vf := OCTO_KEY_S
+		if vf key then direction := SOUTH
+
+		vf := OCTO_KEY_D
+		if vf key then direction := EAST
+
 		vf := delay
 		if vf != 0 then
 	again
@@ -43,29 +59,46 @@
 	delay := vf
 ;
 
-: read-input
-	vf := OCTO_KEY_W
-	if vf key then direction := NORTH
-
-	vf := OCTO_KEY_A
-	if vf key then direction := WEST
-
-	vf := OCTO_KEY_S
-	if vf key then direction := SOUTH
-
-	vf := OCTO_KEY_D
-	if vf key then direction := EAST
-;
-
 : step-snake
+	# save old head
+	i := SNAKE_BUF
+	i += snake_buf_i
+	save snakex - snakey
+
+	snake_buf_i += 2
+	temp1 := snake_len
+	temp1 <<= temp1
+	if snake_buf_i >= temp1 then snake_buf_i := 0
+
+	# erase previous snake head, draw body
+	i := snake-head
+	sprite snakex snakey SPRITE_SIZE
+	i := snake-body
+	sprite snakex snakey SPRITE_SIZE
+
 	if direction == NORTH then snakey -= SPRITE_SIZE
 	if direction == SOUTH then snakey += SPRITE_SIZE
 	if direction == WEST  then snakex -= SPRITE_SIZE
 	if direction == EAST  then snakex += SPRITE_SIZE
+
+	# draw new snake head
+	i := snake-head
+	sprite snakex snakey SPRITE_SIZE
+
+	# get coord of last tail and erase.
+	# (snake_buf_i currently points to the last tail
+	# since we incremented it)
+	#
+	i := SNAKE_BUF
+	i += snake_buf_i
+	load temp1 - temp2
+	i := snake-body
+	sprite temp1 temp2 SPRITE_SIZE
 ;
 
-: draw-snake
-	temp1 := 0
-	i := hex temp1
-	sprite snakex snakey SPRITE_SIZE
-;
+: snake-head
+	0x7C 0xFE 0xFE 0xBA 0xFE 0xFE 0x7C
+: snake-body
+	0x7C 0xFE 0xFE 0xFE 0xFE 0xFE 0x7C
+: snake-blink
+	0x7C 0xFE 0xBA 0x54 0xFE 0xFE 0x7C
