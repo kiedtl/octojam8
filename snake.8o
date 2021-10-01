@@ -1,0 +1,71 @@
+:alias snakey       v1
+:alias snakex       v2
+:alias snake_buf_i  v3
+:alias direction    v4
+:alias temp1        vd
+:alias temp2        ve
+
+:const NORTH   1
+:const SOUTH   2
+:const EAST    3
+:const WEST    4
+
+:const SNAKE_MAX_SZ   16
+:const SNAKE_BUF       0
+:const SPRITE_SIZE     6
+
+: main
+	hires
+	init
+
+	loop
+		draw-snake
+		read-input
+		step-snake
+		draw-snake
+		sync
+	again
+;
+
+: init
+	snakex := 11
+	snakey :=  6
+	direction := EAST
+;
+
+: sync
+	loop
+		vf := delay
+		if vf != 0 then
+	again
+
+	vf := 0x09
+	delay := vf
+;
+
+: read-input
+	vf := OCTO_KEY_W
+	if vf key then direction := NORTH
+
+	vf := OCTO_KEY_A
+	if vf key then direction := WEST
+
+	vf := OCTO_KEY_S
+	if vf key then direction := SOUTH
+
+	vf := OCTO_KEY_D
+	if vf key then direction := EAST
+;
+
+: step-snake
+	if direction == NORTH then snakey -= SPRITE_SIZE
+	if direction == SOUTH then snakey += SPRITE_SIZE
+	if direction == WEST  then snakex -= SPRITE_SIZE
+	if direction == EAST  then snakex += SPRITE_SIZE
+;
+
+: draw-snake
+	temp1 := 0
+	i := hex temp1
+	sprite snakex snakey SPRITE_SIZE
+;
