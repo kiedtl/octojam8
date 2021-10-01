@@ -5,6 +5,8 @@
 :alias snake_buf_i  v3
 :alias snake_len    v4
 :alias direction    v5
+:alias applex       v6
+:alias appley       v7
 :alias temp1        vc
 :alias temp2        vd
 :alias temp3        ve
@@ -16,10 +18,10 @@
 
 :const SPRITE_SIZE     7
 :calc  SPRITE_SIZE_x2  { SPRITE_SIZE * 2 }
-:calc  SNAKE_LIMIT_X   { 128 }
-:calc  SNAKE_LIMIT_Y   {  64 }
-:calc  SNAKE_START_X   { SNAKE_LIMIT_X / 2 }
-:calc  SNAKE_START_Y   { SNAKE_LIMIT_Y / 2 }
+:calc  LIMIT_X         { 128 }
+:calc  LIMIT_Y         {  64 }
+:calc  SNAKE_START_X   { SPRITE_SIZE }
+:calc  SNAKE_START_Y   { SPRITE_SIZE }
 :const SNAKE_MAX_SZ    4
 :const SNAKE_BUF       100
 
@@ -36,6 +38,11 @@
 			gameover
 			init
 		end
+		if temp1 == 2 begin
+			draw-apple
+			place-apple
+			draw-apple
+		end
 	again
 ;
 
@@ -46,6 +53,8 @@
 	snake_buf_i := 0
 	snake_len := 2
 	direction := EAST
+	place-apple
+	draw-apple
 ;
 
 : read-input
@@ -111,10 +120,44 @@
 
 : check-snake
 	temp1 := 0
-	if snakey ==             0 then temp1 := 1
-	if snakex ==             0 then temp1 := 1
-	if snakey >= SNAKE_LIMIT_Y then temp1 := 1
-	if snakex >= SNAKE_LIMIT_X then temp1 := 1
+	if snakey >= LIMIT_Y then temp1 := 1
+	if snakex >= LIMIT_X then temp1 := 1
+
+	if snakex == applex begin
+		if snakey == appley then
+			temp1 := 2
+	end
+;
+
+: place-apple
+	applex := SPRITE_SIZE
+	loop
+		applex += SPRITE_SIZE
+		if applex >= LIMIT_X then applex := SPRITE_SIZE
+		temp1 := random 30
+		if temp1 != 0 then
+	again
+
+	appley := SPRITE_SIZE
+	loop
+		appley += SPRITE_SIZE
+		if appley >= LIMIT_Y then appley := SPRITE_SIZE
+		temp1 := random 30
+		if temp1 != 0 then
+	again
+;
+
+: draw-apple
+	plane 2
+	temp1 := appley
+	i := apple-body
+	sprite applex temp1 SPRITE_SIZE
+
+	plane 1
+	vf := SPRITE_SIZE
+	temp1 -= vf
+	i := apple-top
+	sprite applex temp1 SPRITE_SIZE
 ;
 
 : gameover
@@ -144,6 +187,10 @@
 	again
 ;
 
+: apple-top
+	0x00 0x00 0x00 0x06 0x4E 0x2C 0x00
+: apple-body
+	0x7C 0xDE 0xBE 0xFE 0xFE 0xFE 0x7C
 : snake-head
 	0x7C 0xFE 0xFE 0xBA 0xFE 0xFE 0x7C
 : snake-body
