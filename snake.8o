@@ -8,9 +8,11 @@
 :alias applex       v6
 :alias appley       v7
 :alias score        v8
-:alias temp1        vc
-:alias temp2        vd
-:alias temp3        ve
+:alias temp1        va
+:alias temp2        vb
+:alias temp3        vc
+:alias temp4        vd
+:alias temp5        ve
 
 :const NORTH   1
 :const SOUTH   2
@@ -53,6 +55,7 @@
 ;
 
 : init
+	plane 3
 	clear
 	snakex := SNAKE_START_X
 	snakey := SNAKE_START_Y
@@ -130,6 +133,25 @@
 	temp1 := 0
 	if snakey >= LIMIT_Y then temp1 := 1
 	if snakex >= LIMIT_X then temp1 := 1
+
+	temp2 := 0
+	loop
+		i := SNAKE_BUF
+		i += temp2
+		load temp4 - temp5
+		if temp4 == snakex begin
+			if temp5 == snakey begin
+				temp1 := 1
+				jump brk-chk-loop
+			end
+		end
+
+		temp2 += 2
+		temp3 := snake_len
+		temp3 <<= temp3
+		if temp2 < temp3 then
+	again
+: brk-chk-loop
 
 	if snakex == applex begin
 		if snakey == appley then
