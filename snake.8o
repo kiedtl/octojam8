@@ -5,19 +5,23 @@
 :alias snake_buf_i  v3
 :alias snake_len    v4
 :alias direction    v5
-:alias temp1        vd
-:alias temp2        ve
+:alias temp1        vc
+:alias temp2        vd
+:alias temp3        ve
 
 :const NORTH   1
 :const SOUTH   2
 :const EAST    3
 :const WEST    4
 
-:const SNAKE_MAX_SZ   4
-:const SNAKE_BUF      100
-:const SPRITE_SIZE    7
-:calc  SNAKE_START_Y  { ( (  64 / SPRITE_SIZE ) / 2 ) * SPRITE_SIZE }
-:calc  SNAKE_START_X  { ( ( 128 / SPRITE_SIZE ) / 2 ) * SPRITE_SIZE }
+:const SPRITE_SIZE     7
+:calc  SPRITE_SIZE_x2  { SPRITE_SIZE * 2 }
+:calc  SNAKE_LIMIT_X   { 128 }
+:calc  SNAKE_LIMIT_Y   {  64 }
+:calc  SNAKE_START_X   { SNAKE_LIMIT_X / 2 }
+:calc  SNAKE_START_Y   { SNAKE_LIMIT_Y / 2 }
+:const SNAKE_MAX_SZ    4
+:const SNAKE_BUF       100
 
 : main
 	hires
@@ -26,10 +30,17 @@
 	loop
 		read-input
 		step-snake
+
+		check-snake
+		if temp1 == 1 begin
+			gameover
+			init
+		end
 	again
 ;
 
 : init
+	clear
 	snakex := SNAKE_START_X
 	snakey := SNAKE_START_Y
 	snake_buf_i := 0
@@ -60,6 +71,8 @@
 ;
 
 : step-snake
+	plane 1
+
 	# save old head
 	i := SNAKE_BUF
 	i += snake_buf_i
@@ -96,9 +109,61 @@
 	sprite temp1 temp2 SPRITE_SIZE
 ;
 
+: check-snake
+	temp1 := 0
+	if snakey ==             0 then temp1 := 1
+	if snakex ==             0 then temp1 := 1
+	if snakey >= SNAKE_LIMIT_Y then temp1 := 1
+	if snakex >= SNAKE_LIMIT_X then temp1 := 1
+;
+
+: gameover
+	draw-gameover-message
+	vf := key
+	draw-gameover-message
+;
+
+: draw-gameover-message
+	:const GAMEOVER_MSG_LEN 8
+	:calc GAMEOVER_MSG_Y { (  64 / 2 ) - ( SPRITE_SIZE / 2 ) }
+	:calc GAMEOVER_MSG_X { ( 128 / 2 ) - ( ( GAMEOVER_MSG_LEN / 2 ) * SPRITE_SIZE ) }
+
+	plane 3
+
+	i := gameover-text
+	temp1 := GAMEOVER_MSG_LEN
+	temp2 := GAMEOVER_MSG_X
+	temp3 := GAMEOVER_MSG_Y
+	loop
+		sprite temp2 temp3 SPRITE_SIZE
+		temp2 += SPRITE_SIZE
+		vf := SPRITE_SIZE_x2
+		i += vf
+		temp1 -= 1
+		if temp1 > 0 then
+	again
+;
+
 : snake-head
 	0x7C 0xFE 0xFE 0xBA 0xFE 0xFE 0x7C
 : snake-body
 	0x7C 0xFE 0xFE 0xFE 0xFE 0xFE 0x7C
 : snake-blink
 	0x7C 0xFE 0xBA 0x54 0xFE 0xFE 0x7C
+: gameover-text
+	0x78 0x84 0x80 0x9C 0x84 0x78 0x00 # G
+	0x78 0x84 0x80 0x9C 0x84 0x78 0x00 # G
+	0x78 0x84 0x84 0xFC 0x84 0x84 0x00 # A
+	0x78 0x84 0x84 0xFC 0x84 0x84 0x00 # A
+	0x84 0xCC 0xB4 0x84 0x84 0x84 0x00 # M
+	0x84 0xCC 0xB4 0x84 0x84 0x84 0x00 # M
+	0x7C 0x80 0xF8 0x80 0x80 0x7C 0x00 # E
+	0x7C 0x80 0xF8 0x80 0x80 0x7C 0x00 # E
+	0x78 0x84 0x84 0x84 0x84 0x78 0x00 # O
+	0x78 0x84 0x84 0x84 0x84 0x78 0x00 # O
+	0x84 0x84 0x84 0x84 0x48 0x30 0x00 # V
+	0x84 0x84 0x84 0x84 0x48 0x30 0x00 # V
+	0x7C 0x80 0xF8 0x80 0x80 0x7C 0x00 # E
+	0x7C 0x80 0xF8 0x80 0x80 0x7C 0x00 # E
+	0xF8 0x84 0x84 0xF8 0x84 0x84 0x00 # R
+	0xF8 0x84 0x84 0xF8 0x84 0x84 0x00 # R
