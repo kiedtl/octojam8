@@ -7,6 +7,7 @@
 :alias direction    v5
 :alias applex       v6
 :alias appley       v7
+:alias score        v7
 :alias temp1        vc
 :alias temp2        vd
 :alias temp3        ve
@@ -22,7 +23,7 @@
 :calc  LIMIT_Y         {  64 }
 :calc  SNAKE_START_X   { SPRITE_SIZE }
 :calc  SNAKE_START_Y   { SPRITE_SIZE }
-:const SNAKE_MAX_SZ    4
+:const SNAKE_MAX_SZ    24
 :const SNAKE_BUF       100
 
 : main
@@ -148,7 +149,7 @@
 ;
 
 : draw-apple
-	plane 2
+	plane 3
 	temp1 := appley
 	i := apple-body
 	sprite applex temp1 SPRITE_SIZE
@@ -190,7 +191,8 @@
 : apple-top
 	0x00 0x00 0x00 0x06 0x4E 0x2C 0x00
 : apple-body
-	0x7C 0xDE 0xBE 0xFE 0xFE 0xFE 0x7C
+	0x00 0x20 0x40 0x00 0x00 0x00 0x00
+	0x7C 0xFE 0xFE 0xFE 0xFE 0xFE 0x7C
 : snake-head
 	0x7C 0xFE 0xFE 0xBA 0xFE 0xFE 0x7C
 : snake-body
