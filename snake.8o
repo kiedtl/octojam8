@@ -43,6 +43,7 @@
 			draw-score
 			score += 10
 			draw-score
+			snake_len += 1
 
 			draw-apple
 			place-apple
