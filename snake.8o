@@ -56,15 +56,21 @@
 ;
 
 : init
-	plane 3
 	clear
+
 	snakex := SNAKE_START_X
 	snakey := SNAKE_START_Y
+	plane 2
+	i := snake-head
+	sprite snakex snakey SPRITE_SIZE
+
 	snake_buf_i := 0
 	snake_len := 2
 	direction := EAST
+
 	score := 0
 	draw-score
+
 	place-apple
 	draw-apple
 ;
