@@ -74,8 +74,12 @@
 			# Erase apple before growing snake
 			draw-apple  
 
-			animctr := 20
 			snake_len += 1
+
+			draw-score
+			score += 10
+			animctr := 20
+			draw-score
 
 			place-apple
 			draw-apple
@@ -126,23 +130,20 @@
 ;
 
 : step-anims
-	# note: snake face animations are done in step-snake
+	# note: snake face animations are done in step-snake, and
+	# score animations are done in draw-score
 
 	if animctr > 0 begin
 		if animctr > 10 begin
-			if animctr >= 16 begin
-				draw-score
-				score += 2
-				draw-score
-			end
-
 			if animctr == 20 then draw-apple
 			if animctr == 19 then draw-apple
 			if animctr == 18 then draw-apple
 			if animctr == 17 then draw-apple
 		end
 
+		draw-score
 		animctr -= 1
+		draw-score
 	end
 
 	vf := 1
@@ -267,8 +268,22 @@
 : draw-score
 	plane 1
 
+	# FYI to whoever reads this next, I have no bloody
+	# idea what is going on here, whether this is working
+	# as intended or working as a coincidence.
+	#
+	temp1 := score
+	if animctr >= 16 begin
+		temp2 := animctr
+		temp2 -= 16
+		MUL2 temp2 temp2
+		temp1 -= temp2
+	end
+	#
+	# end FYI
+
 	i := score-buf
-	bcd score
+	bcd temp1
 
 	temp1 := 0
 	temp2 := 0
