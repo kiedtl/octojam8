@@ -1,13 +1,14 @@
 # started 0950 2021-10-01
 
-:alias snakex       v1
-:alias snakey       v2  # must be exactly one register after snakex
-:alias snake_buf_i  v3
-:alias snake_len    v4
-:alias direction    v5
-:alias applex       v6
-:alias appley       v7
-:alias score        v8
+:alias snakex       v0
+:alias snakey       v1  # must be exactly one register after snakex
+:alias snake_buf_i  v2
+:alias snake_len    v3
+:alias direction    v4
+:alias applex       v5
+:alias appley       v6
+:alias score        v7
+:alias animctr      v8
 :alias temp1        va
 :alias temp2        vb
 :alias temp3        vc
@@ -35,6 +36,7 @@
 	loop
 		read-input
 		step-snake
+		step-anims
 
 		check-snake
 		if temp1 == 1 begin
@@ -42,9 +44,7 @@
 			init
 		end
 		if temp1 == 2 begin
-			draw-score
-			score += 10
-			draw-score
+			animctr := 20
 			snake_len += 1
 
 			draw-apple
@@ -68,6 +68,29 @@
 	draw-apple
 ;
 
+: step-anims
+	# note: snake "yummy" face animations after munching an
+	# apple are done in step-snake
+
+	if animctr > 0 begin
+		if animctr > 10 begin
+			if animctr >= 16 begin
+				draw-score
+				score += 2
+				draw-score
+			end
+
+			if animctr == 20 then draw-apple
+			if animctr == 19 then draw-apple
+			if animctr == 18 then draw-apple
+			if animctr == 17 then draw-apple
+		end
+
+		animctr -= 1
+	end
+
+;
+
 : read-input
 	loop
 		vf := OCTO_KEY_W
@@ -86,7 +109,7 @@
 		if vf != 0 then
 	again
 
-	vf := 0x09
+	vf := 0x07
 	delay := vf
 ;
 
@@ -105,6 +128,8 @@
 
 	# erase previous snake head, draw body
 	i := snake-head
+	if animctr == 19 then i := snake-yum
+	if animctr == 18 then i := snake-yum
 	sprite snakex snakey SPRITE_SIZE
 	i := snake-body
 	sprite snakex snakey SPRITE_SIZE
@@ -116,6 +141,8 @@
 
 	# draw new snake head
 	i := snake-head
+	if animctr == 20 then i := snake-yum
+	if animctr == 19 then i := snake-yum
 	sprite snakex snakey SPRITE_SIZE
 
 	# get coord of last tail and erase.
@@ -165,8 +192,8 @@
 	i := score-buf
 	bcd score
 
-	temp1 :=   0
-	temp2 :=   0
+	temp1 := 0
+	temp2 := 0
 	loop
 		i := score-buf
 		i += temp2
@@ -254,7 +281,7 @@
 	0x7C 0xFE 0xFE 0xBA 0xFE 0xFE 0x7C
 : snake-body
 	0x7C 0xFE 0xFE 0xFE 0xFE 0xFE 0x7C
-: snake-blink
+: snake-yum
 	0x7C 0xFE 0xBA 0x54 0xFE 0xFE 0x7C
 : gameover-text
 	0x78 0x84 0x80 0x9C 0x84 0x78 0x00 # G
