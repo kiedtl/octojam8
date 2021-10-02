@@ -9,6 +9,7 @@
 :alias appley       v6
 :alias score        v7
 :alias animctr      v8
+:alias animctr2     v9
 :alias temp1        va
 :alias temp2        vb
 :alias temp3        vc
@@ -69,8 +70,7 @@
 ;
 
 : step-anims
-	# note: snake "yummy" face animations after munching an
-	# apple are done in step-snake
+	# note: snake face animations are done in step-snake
 
 	if animctr > 0 begin
 		if animctr > 10 begin
@@ -89,6 +89,9 @@
 		animctr -= 1
 	end
 
+	vf := 1
+	animctr2 -= vf
+	if vf == 0 then animctr2 := 30
 ;
 
 : read-input
@@ -128,8 +131,9 @@
 
 	# erase previous snake head, draw body
 	i := snake-head
-	if animctr == 19 then i := snake-yum
-	if animctr == 18 then i := snake-yum
+	if animctr2 == 19 then i := snake-body
+	if animctr  == 19 then i := snake-yum
+	if animctr  == 18 then i := snake-yum
 	sprite snakex snakey SPRITE_SIZE
 	i := snake-body
 	sprite snakex snakey SPRITE_SIZE
@@ -141,8 +145,9 @@
 
 	# draw new snake head
 	i := snake-head
-	if animctr == 20 then i := snake-yum
-	if animctr == 19 then i := snake-yum
+	if animctr2 == 20 then i := snake-body
+	if animctr  == 20 then i := snake-yum
+	if animctr  == 19 then i := snake-yum
 	sprite snakex snakey SPRITE_SIZE
 
 	# get coord of last tail and erase.
