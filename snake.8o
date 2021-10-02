@@ -28,7 +28,6 @@
 :calc SNAKE_START_X   { SPRITE_SIZE }
 :calc SNAKE_START_Y   { SPRITE_SIZE }
 :calc SNAKE_MAX_SZ    {  24 }
-:calc SNAKE_BUF       { 100 }
 
 :macro MUL2 VAL DEST {
 	# Multiply 2 with `x << 1`
@@ -148,7 +147,7 @@
 	plane 2
 
 	# Save coordinates of old head
-	i := SNAKE_BUF
+	i := snake-buf
 	i += snake_buf_i
 	save snakex - snakey
 
@@ -183,7 +182,7 @@
 	# (snake_buf_i currently points to the last tail coordinate
 	# since we incremented it)
 	#
-	i := SNAKE_BUF
+	i := snake-buf
 	i += snake_buf_i
 	load temp1 - temp2
 	i := snake-body
@@ -203,7 +202,7 @@
 	# snake's head.
 	temp2 := 0
 	loop
-		i := SNAKE_BUF
+		i := snake-buf
 		i += temp2
 		load temp4 - temp5
 		if temp4 == snakex begin
@@ -345,3 +344,5 @@
 : snake-yum
 	0x7C 0xFE 0xBA 0x54 0xFE 0xFE 0x7C
 : score-buf
+	0x00 0x00 0x00 # 3-byte padding
+: snake-buf
