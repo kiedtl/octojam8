@@ -1,4 +1,11 @@
-# started 0950 2021-10-01
+# started: 0950 2021-10-01
+#
+# Simple snake game
+# MIT (c) Kiëd Llaentenn <kiedtl@tilde.team>
+#
+# There are only two buffers in use in memory: one buffer (:score-buf)
+# for bcd'ing the score, and a ringbuffer to store the snake's body
+# (:snake-buf), indexed by register snake_buf_i.
 
 :alias snakex       v0
 :alias snakey       v1  # must be exactly one register after snakex
