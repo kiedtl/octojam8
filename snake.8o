@@ -21,14 +21,14 @@
 :const EAST    3
 :const WEST    4
 
-:const SPRITE_SIZE     7
-:calc  SPRITE_SIZE_x2  { SPRITE_SIZE * 2 }
-:calc  LIMIT_X         { 128 }
-:calc  LIMIT_Y         {  64 }
-:calc  SNAKE_START_X   { SPRITE_SIZE }
-:calc  SNAKE_START_Y   { SPRITE_SIZE }
-:const SNAKE_MAX_SZ    24
-:const SNAKE_BUF       100
+:calc SPRITE_SIZE     {   7 }
+:calc SPRITE_SIZE_x2  { SPRITE_SIZE * 2 }
+:calc LIMIT_X         { 126 }
+:calc LIMIT_Y         {  63 }
+:calc SNAKE_START_X   { SPRITE_SIZE }
+:calc SNAKE_START_Y   { SPRITE_SIZE }
+:calc SNAKE_MAX_SZ    {  24 }
+:calc SNAKE_BUF       { 100 }
 
 : main
 	hires
@@ -56,6 +56,7 @@
 ;
 
 : init
+	plane 3
 	clear
 
 	snakex := SNAKE_START_X
