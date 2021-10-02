@@ -30,6 +30,26 @@
 :calc SNAKE_MAX_SZ    {  24 }
 :calc SNAKE_BUF       { 100 }
 
+:macro MUL2 VAL DEST {
+	# Multiply 2 with `x << 1`
+	DEST := VAL
+	DEST <<= DEST
+}
+
+:macro MUL6 VAL DEST {
+	# Multiply 6 using some clever bit shifting.
+	#
+	# Formula:
+	#     x * 6 = ((x * 2) + x) * 2
+	#
+	# Since `x * 2` == `x << 1`, this is converted to:
+	#     x * 6 = ((x << 1) + x) << 1
+	#
+	MUL2 VAL DEST       # accm = x * 2
+	DEST += VAL         # accm += x
+	MUL2 DEST DEST      # accm *= 2
+}
+
 : main
 	hires
 	init
@@ -48,7 +68,7 @@
 			animctr := 20
 			snake_len += 1
 
-			draw-apple
+			draw-apple  # Erase apple
 			place-apple
 			draw-apple
 		end
@@ -127,17 +147,17 @@
 : step-snake
 	plane 2
 
-	# save old head
+	# Save coordinates of old head
 	i := SNAKE_BUF
 	i += snake_buf_i
 	save snakex - snakey
 
+	# Increment index for ringbuffer
 	snake_buf_i += 2
-	temp1 := snake_len
-	temp1 <<= temp1
+	MUL2 snake_len temp1
 	if snake_buf_i >= temp1 then snake_buf_i := 0
 
-	# erase previous snake head, draw body
+	# Erase previous snake head, draw body
 	i := snake-head
 	if animctr2 == 19 then i := snake-body
 	if animctr  == 19 then i := snake-yum
@@ -146,20 +166,21 @@
 	i := snake-body
 	sprite snakex snakey SPRITE_SIZE
 
+	# Move snake coordinates
 	if direction == NORTH then snakey -= SPRITE_SIZE
 	if direction == SOUTH then snakey += SPRITE_SIZE
 	if direction == WEST  then snakex -= SPRITE_SIZE
 	if direction == EAST  then snakex += SPRITE_SIZE
 
-	# draw new snake head
+	# Draw new snake head
 	i := snake-head
 	if animctr2 == 20 then i := snake-body
 	if animctr  == 20 then i := snake-yum
 	if animctr  == 19 then i := snake-yum
 	sprite snakex snakey SPRITE_SIZE
 
-	# get coord of last tail and erase.
-	# (snake_buf_i currently points to the last tail
+	# Get coord of last tail and erase.
+	# (snake_buf_i currently points to the last tail coordinate
 	# since we incremented it)
 	#
 	i := SNAKE_BUF
@@ -170,10 +191,16 @@
 ;
 
 : check-snake
+	# Check that snake is past the edges
 	temp1 := 0
 	if snakey >= LIMIT_Y then temp1 := 1
 	if snakex >= LIMIT_X then temp1 := 1
 
+	# Check that snake isn't overlapping itself.
+	#
+	# Iterate over each coordinate in ringbuffer and
+	# check that they don't equal the coordinate of the
+	# snake's head.
 	temp2 := 0
 	loop
 		i := SNAKE_BUF
@@ -187,12 +214,12 @@
 		end
 
 		temp2 += 2
-		temp3 := snake_len
-		temp3 <<= temp3
+		MUL2 snake_len temp3
 		if temp2 < temp3 then
 	again
 : brk-chk-loop
 
+	# Check if snake is munching apple
 	if snakex == applex begin
 		if snakey == appley then
 			temp1 := 2
@@ -208,26 +235,35 @@
 	temp1 := 0
 	temp2 := 0
 	loop
+		# Load next digit
 		i := score-buf
 		i += temp2
 		load temp3 - temp3
 		i := hex temp3
 
-		temp3 := temp2
-		temp3 <<= temp3
-		vf := temp2
-		temp3 += vf
-		temp3 <<= temp3
-		temp3 += 1
+		# Get Y coord
+		MUL6 temp2 temp3
+		temp3 += 1 # Add some padding
 
+		# Draw
 		vf := 123
 		sprite vf temp3 5 
+
 		temp2 += 1
 		if temp2 < 3 then
 	again
 ;
 
 : place-apple
+	# Place the apple randomly.
+	#
+	# Iterate over each possible coordinate, and randomly stop.
+	# Wherever we stop is where the apple is placed.
+	#
+	# This is done instead of just `snakey := random LIMIT`,
+	# because that way the apple may end up being between
+	# rows and unreachable by the snake.
+
 	applex := SPRITE_SIZE
 	loop
 		applex += SPRITE_SIZE
@@ -252,8 +288,8 @@
 	sprite applex temp1 SPRITE_SIZE
 
 	plane 2
-	vf := SPRITE_SIZE
-	temp1 -= vf
+	vf := SPRITE_SIZE    # Move one row up to draw apple's top
+	temp1 -= vf          # ...
 	i := apple-top
 	sprite applex temp1 SPRITE_SIZE
 ;
@@ -264,7 +300,7 @@
 		vf := OCTO_KEY_E
 		if vf -key then
 	again
-	draw-gameover-message
+	draw-gameover-message  # Erase message
 ;
 
 : draw-gameover-message
