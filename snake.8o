@@ -93,6 +93,9 @@
 	plane 3
 	clear
 
+	animctr := 0
+	animctr2 := 0
+
 	snakex := SNAKE_START_X
 	snakey := SNAKE_START_Y
 	plane 2
