@@ -252,7 +252,10 @@
 
 : gameover
 	draw-gameover-message
-	vf := key
+	loop
+		temp1 := key
+		if temp1 != OCTO_KEY_E then
+	again
 	draw-gameover-message
 ;
 
