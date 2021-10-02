@@ -17,7 +17,7 @@
 :alias score        v7
 :alias animctr      v8
 :alias animctr2     v9
-:alias temp1        va
+:alias temp1        va  # temporary registers must be adjacent to each other
 :alias temp2        vb
 :alias temp3        vc
 :alias temp4        vd
@@ -71,10 +71,12 @@
 			init
 		end
 		if temp1 == 2 begin
+			# Erase apple before growing snake
+			draw-apple  
+
 			animctr := 20
 			snake_len += 1
 
-			draw-apple  # Erase apple
 			place-apple
 			draw-apple
 		end
@@ -252,6 +254,9 @@
 	again
 : brk-chk-loop
 
+	# Check that the snake isn't too big.
+	if snake_len > SNAKE_MAX_SZ then temp1 := 1
+
 	# Check if snake is munching apple
 	if snakex == applex begin
 		if snakey == appley then
@@ -315,7 +320,13 @@
 ;
 
 : draw-apple
-	plane 3
+	# Draw the apple white if it's the last apple.
+	if snake_len == SNAKE_MAX_SZ begin
+		plane 1
+	else
+		plane 3
+	end
+
 	temp1 := appley
 	i := apple-body
 	sprite applex temp1 SPRITE_SIZE
