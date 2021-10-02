@@ -76,7 +76,9 @@
 
 			snake_len += 1
 
+			# Erase score before resetting animctr
 			draw-score
+
 			score += 10
 			animctr := 20
 			draw-score
@@ -141,6 +143,7 @@
 			if animctr == 17 then draw-apple
 		end
 
+		# Redraw score
 		draw-score
 		animctr -= 1
 		draw-score
