@@ -1,7 +1,17 @@
 # started: 0950 2021-10-01
 #
-# Simple snake game
+# Simple XO-CHIP snake game, created for the Octojam 8.
 # MIT (c) Kiëd Llaentenn <kiedtl@tilde.team>
+# https://github.com/kiedtl/octojam8
+#
+# Made with <3 on a Raspberry Pi Zero W.
+#
+# Recommended colors:
+#    plane0: #121823
+#    plane1: #cacbca
+#    plane2: #a0e01f
+#    plane3: #ab3347
+# CHIP-8 quirks: None.
 #
 # There are only two buffers in use in memory: one buffer (:score-buf)
 # for bcd'ing the score, and a ringbuffer to store the snake's body
