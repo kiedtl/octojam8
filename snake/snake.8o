@@ -1,6 +1,8 @@
 # started: 0950 2021-10-01
 #
-# Simple XO-CHIP snake game, created for the Octojam 8.
+# Simple XO-CHIP snake game, created for the Octojam 8. Heavily
+# inspired by the `snake' demo for cel7.
+#
 # MIT (c) Kiëd Llaentenn <kiedtl@tilde.team>
 # https://github.com/kiedtl/octojam8
 #
